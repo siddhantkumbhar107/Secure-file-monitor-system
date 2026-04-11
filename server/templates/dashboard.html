@@ -2,148 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure File Monitoring Dashboard</title>
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: linear-gradient(135deg, #081221, #020817);
-            color: white;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .cards {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-        }
-
-        .card {
-            background: #0d1b3d;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            width: 180px;
-        }
-
-        .card h2 {
-            margin-top: 10px;
-            font-size: 24px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #0d1b3d;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        th, td {
-            padding: 10px;
-            border-bottom: 1px solid #1e2a50;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            background: #13255a;
-        }
-
-        tr:hover {
-            background: #1a2d66;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #081221; color: white; padding: 20px; }
+        h1 { margin-bottom: 20px; }
+        .card-box { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .card { background: #102040; padding: 20px; border-radius: 10px; min-width: 180px; }
+        .card h2 { margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; background: #102040; }
+        th, td { padding: 10px; border: 1px solid #1c335f; text-align: left; font-size: 14px; }
+        th { background: #16305c; }
     </style>
 </head>
-
 <body>
 
-<h1>🔐 Secure File Monitoring Dashboard</h1>
+    <h1>Secure File Monitoring Dashboard</h1>
 
-<div class="cards">
-    <div class="card">
-        <span>Total Logs</span>
-        <h2>{{ logs|length }}</h2>
+    <div class="card-box">
+        <div class="card">
+            <div>Total Logs</div>
+            <h2>{{ logs|length }}</h2>
+        </div>
     </div>
 
-    <div class="card">
-        <span>USB Inserted</span>
-        <h2>{{ logs | selectattr('event', 'equalto', 'USB_INSERTED') | list | length }}</h2>
-    </div>
-
-    <div class="card">
-        <span>Files Copied To USB</span>
-        <h2>{{ logs | selectattr('event', 'equalto', 'FILE_COPIED_TO_USB') | list | length }}</h2>
-    </div>
-
-    <div class="card">
-        <span>Files Created</span>
-        <h2>{{ logs | selectattr('event', 'equalto', 'FILE_CREATED') | list | length }}</h2>
-    </div>
-
-    <div class="card">
-        <span>Files Deleted</span>
-        <h2>{{ logs | selectattr('event', 'equalto', 'FILE_DELETED') | list | length }}</h2>
-    </div>
-
-    <div class="card">
-        <span>Unauthorized Events</span>
-        <h2>{{ logs | selectattr('status', 'equalto', 'UNAUTHORIZED') | list | length }}</h2>
-    </div>
-</div>
-
-<table>
-    <thead>
-        <tr>
-            <th>Time</th>
-            <th>Event</th>
-            <th>Source</th>
-            <th>Destination</th>
-            <th>File Name</th>
-            <th>User</th>
-            <th>Status</th>
-            <th>Size</th>
-            <th>Hash</th>
-            <th>Alert</th>
-        </tr>
-    </thead>
-
-    <tbody>
-    {% if logs %}
-        {% for log in logs %}
-        <tr>
-            <td>{{ log.timestamp }}</td>
-            <td>{{ log.event }}</td>
-            <td>{{ log.source }}</td>
-            <td>{{ log.destination }}</td>
-            <td>{{ log.file_name }}</td>
-            <td>{{ log.user }}</td>
-            <td>{{ log.status }}</td>
-            <td>{{ log.file_size }}</td>
-            <td>{{ log.hash }}</td>
-            <td>{{ log.alert }}</td>
-        </tr>
-        {% endfor %}
-    {% else %}
-        <tr>
-            <td colspan="10">No logs found</td>
-        </tr>
-    {% endif %}
-    </tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>File Name</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Size</th>
+                <th>Hash</th>
+                <th>Alert</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if logs %}
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp }}</td>
+                    <td>{{ log.event }}</td>
+                    <td>{{ log.source }}</td>
+                    <td>{{ log.destination }}</td>
+                    <td>{{ log.file_name }}</td>
+                    <td>{{ log.user }}</td>
+                    <td>{{ log.status }}</td>
+                    <td>{{ log.file_size }}</td>
+                    <td>{{ log.hash }}</td>
+                    <td>{{ log.alert }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="10">No logs found</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
 
 </body>
 </html>
