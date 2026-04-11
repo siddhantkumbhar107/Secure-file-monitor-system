@@ -10,7 +10,7 @@ import time
 
 
 # 🔥 PROCESS FILE EVENTS
-def process_event(event_type, file_pathsend,log(data)):
+def process_event(event_type, file_pathsend,log(data),send_log(data)):
 
     print("\n==============================")
     print(f"📂 Event: {event_type} -> {file_path}")
