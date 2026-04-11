@@ -8,8 +8,8 @@ logs = []
 @app.route("/")
 def home():
     total_logs = len(logs)
-    unauthorized_count = sum(1 for log in logs if log.get("status") == "UNAUTHORIZED")
-    sensitive_count = sum(1 for log in logs if log.get("sensitive") is True)
+    unauthorized_count = sum(1 for log in logs if log.get("status", "") == "UNAUTHORIZED")
+    sensitive_count = sum(1 for log in logs if log.get("sensitive", False) is True)
 
     return render_template(
         "dashboard.html",
@@ -21,11 +21,9 @@ def home():
 
 @app.route("/log", methods=["POST"])
 def receive_log():
-    data = request.get_json(force=True)
-
+    data = request.get_json(force=True) or {}
     data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logs.append(data)
-
     print("📥 Received Log:", data)
     return jsonify({"status": "success", "count": len(logs)}), 200
 
