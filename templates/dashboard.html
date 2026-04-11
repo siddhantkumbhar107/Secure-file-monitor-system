@@ -47,7 +47,7 @@
                             <div class="log-top">
                                 <div>
                                     <span class="event-badge">{{ log.get('event', 'N/A') }}</span>
-                                    {% if log.get('status') == 'UNAUTHORIZED' %}
+                                    {% if log.get('status', 'AUTHORIZED') == 'UNAUTHORIZED' %}
                                         <span class="status-badge danger">UNAUTHORIZED</span>
                                     {% else %}
                                         <span class="status-badge success">{{ log.get('status', 'AUTHORIZED') }}</span>
@@ -72,7 +72,7 @@
                                 <div class="log-item">
                                     <span class="label">Sensitive</span>
                                     <span class="value">
-                                        {% if log.get('sensitive') %}
+                                        {% if log.get('sensitive', False) %}
                                             Yes
                                         {% else %}
                                             No
