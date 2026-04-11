@@ -4,48 +4,124 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Secure File Monitoring Dashboard</title>
+    <meta http-equiv="refresh" content="10" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+
     <div class="page">
         <header class="hero">
-            <h1>🔐 Secure File Monitoring Dashboard</h1>
-            <p>Centralized monitoring for file activity and suspicious transfers.</p>
+            <div class="hero-left">
+                <div class="hero-badge">Cybersecurity Monitoring</div>
+                <h1>🔐 Secure File Monitoring Dashboard</h1>
+                <p>
+                    Real-time centralized visibility for file activity, integrity checks,
+                    unauthorized actions, and sensitive transfers.
+                </p>
+            </div>
+            <div class="hero-right">
+                <div class="mini-card">
+                    <span class="mini-label">System Status</span>
+                    <span class="mini-value online">Online</span>
+                </div>
+                <div class="mini-card">
+                    <span class="mini-label">Refresh</span>
+                    <span class="mini-value">Every 10s</span>
+                </div>
+            </div>
         </header>
 
         <section class="stats">
             <div class="stat-card">
-                <div class="stat-title">Total Logs</div>
-                <div class="stat-value">{{ total_logs }}</div>
+                <div class="stat-icon">📄</div>
+                <div>
+                    <div class="stat-title">Total Logs</div>
+                    <div class="stat-value">{{ total_logs }}</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Unauthorized Events</div>
-                <div class="stat-value">{{ unauthorized_count }}</div>
+
+            <div class="stat-card warning">
+                <div class="stat-icon">🚨</div>
+                <div>
+                    <div class="stat-title">Unauthorized Events</div>
+                    <div class="stat-value">{{ unauthorized_count }}</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Sensitive Events</div>
-                <div class="stat-value">{{ sensitive_count }}</div>
+
+            <div class="stat-card info">
+                <div class="stat-icon">🔐</div>
+                <div>
+                    <div class="stat-title">Sensitive Events</div>
+                    <div class="stat-value">{{ sensitive_count }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card accent">
+                <div class="stat-icon">✏️</div>
+                <div>
+                    <div class="stat-title">Modified Events</div>
+                    <div class="stat-value">{{ modified_count }}</div>
+                </div>
             </div>
         </section>
 
         <section class="logs-section">
-            <h2>Recent Activity</h2>
+            <div class="section-top">
+                <div>
+                    <h2>Recent Activity</h2>
+                    <p>Latest file monitoring events received from connected clients.</p>
+                </div>
+            </div>
 
             {% if not logs %}
                 <div class="empty-state">
-                    <p>No logs received yet.</p>
+                    <div class="empty-icon">📭</div>
+                    <h3>No logs received yet</h3>
+                    <p>Once your client sends file activity events, they will appear here.</p>
                 </div>
             {% else %}
-                {% for log in logs %}
-                    <div class="log-card">
-                        <p><b>Event:</b> {{ log.get('event', 'N/A') }}</p>
-                        <p><b>File:</b> {{ log.get('file', '') }}</p>
-                        <p><b>User:</b> {{ log.get('user', '') }}</p>
-                        <p><b>Status:</b> {{ log.get('status', '') }}</p>
-                        <p><b>Hash:</b> {{ log.get('hash', '') }}</p>
-                        <p><b>Timestamp:</b> {{ log.get('timestamp', '') }}</p>
-                    </div>
-                {% endfor %}
+                <div class="log-list">
+                    {% for log in logs %}
+                        <div class="log-card">
+                            <div class="log-top">
+                                <div class="log-badges">
+                                    <span class="event-badge">{{ log.get('event', 'N/A') }}</span>
+
+                                    {% if log.get('status', 'AUTHORIZED') == 'UNAUTHORIZED' %}
+                                        <span class="status-badge danger">UNAUTHORIZED</span>
+                                    {% else %}
+                                        <span class="status-badge success">{{ log.get('status', 'AUTHORIZED') }}</span>
+                                    {% endif %}
+
+                                    {% if log.get('sensitive', False) %}
+                                        <span class="status-badge sensitive">SENSITIVE</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="timestamp">{{ log.get('timestamp', '') }}</div>
+                            </div>
+
+                            <div class="log-grid">
+                                <div class="log-item wide">
+                                    <span class="label">File Path</span>
+                                    <span class="value break">{{ log.get('file', '') }}</span>
+                                </div>
+
+                                <div class="log-item">
+                                    <span class="label">User</span>
+                                    <span class="value">{{ log.get('user', '') }}</span>
+                                </div>
+
+                                <div class="log-item">
+                                    <span class="label">Hash</span>
+                                    <span class="value break">{{ log.get('hash', '') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             {% endif %}
         </section>
     </div>
