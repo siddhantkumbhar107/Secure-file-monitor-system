@@ -4,6 +4,7 @@ from hashing import get_hash
 from auth import check_user
 from logger import log_event
 from usb_monitor import monitor_usb
+from sender import send_log
 import threading
 import time
 
