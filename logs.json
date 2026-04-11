@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "timestamp": "2026-04-11 20:00:00",
+    "event": "TEST_EVENT",
+    "source": "-",
+    "destination": "-",
+    "file_name": "test.txt",
+    "user": "system",
+    "status": "AUTHORIZED",
+    "file_size": 123,
+    "hash": "abc123",
+    "alert": "Dashboard test log"
+  }
+]
