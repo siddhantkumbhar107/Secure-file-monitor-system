@@ -9,7 +9,9 @@ from datetime import datetime
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-LOG_FILE = "logs.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(BASE_DIR, "logs.json")
+
 USB_WATCHERS = {}
 SYSTEM_WATCHERS = []
 CONNECTED_USB_DRIVES = set()
@@ -72,25 +74,11 @@ def get_file_size(file_path):
     return 0
 
 
-def path_exists(path):
-    try:
-        return os.path.exists(path)
-    except Exception:
-        return False
-
-
-def is_subpath(child_path, parent_path):
-    try:
-        child_abs = os.path.abspath(child_path).lower()
-        parent_abs = os.path.abspath(parent_path).lower()
-        return child_abs.startswith(parent_abs)
-    except Exception:
-        return False
-
-
 def get_file_name(path):
     try:
-        return os.path.basename(path) if path and path != "-" else "-"
+        if not path or path == "-":
+            return "-"
+        return os.path.basename(path) or path
     except Exception:
         return "-"
 
@@ -99,6 +87,7 @@ def add_log(event_type, source, destination, status, alert):
     logs = load_logs()
 
     target_for_metadata = destination if destination and destination != "-" else source
+
     log_entry = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "event": event_type,
@@ -115,27 +104,26 @@ def add_log(event_type, source, destination, status, alert):
     logs.insert(0, log_entry)
     save_logs(logs)
 
-    print("=" * 60)
+    print("=" * 70)
+    print(f"LOG SAVED -> {event_type}")
     print(f"TIME: {log_entry['timestamp']}")
-    print(f"EVENT: {log_entry['event']}")
     print(f"SOURCE: {log_entry['source']}")
     print(f"DESTINATION: {log_entry['destination']}")
     print(f"FILE: {log_entry['file_name']}")
     print(f"USER: {log_entry['user']}")
     print(f"STATUS: {log_entry['status']}")
-    print(f"SIZE: {log_entry['file_size']}")
-    print(f"HASH: {log_entry['hash']}")
     print(f"ALERT: {log_entry['alert']}")
+    print(f"LOG FILE: {LOG_FILE}")
 
 
 def get_home_folders():
     home = os.path.expanduser("~")
-    candidates = [
+    folders = [
         os.path.join(home, "Desktop"),
         os.path.join(home, "Downloads"),
-        os.path.join(home, "Documents"),
+        os.path.join(home, "Documents")
     ]
-    return [folder for folder in candidates if os.path.exists(folder)]
+    return [folder for folder in folders if os.path.exists(folder)]
 
 
 def get_removable_drives():
@@ -144,27 +132,18 @@ def get_removable_drives():
     try:
         partitions = psutil.disk_partitions(all=False)
         for part in partitions:
-            opts = part.opts.lower()
-            device = (part.device or "").lower()
+            opts = (part.opts or "").lower()
             mountpoint = part.mountpoint
 
             if "removable" in opts:
                 usb_drives.add(mountpoint)
-            elif "cdrom" in opts:
-                continue
-            elif device.startswith("\\\\?\\usb") or "usb" in device:
-                usb_drives.add(mountpoint)
-    except Exception:
-        pass
+    except Exception as e:
+        print("USB detection error:", e)
 
     return usb_drives
 
 
 class USBEventHandler(FileSystemEventHandler):
-    def __init__(self, usb_root):
-        super().__init__()
-        self.usb_root = os.path.abspath(usb_root)
-
     def on_created(self, event):
         if event.is_directory:
             return
@@ -215,32 +194,26 @@ class USBEventHandler(FileSystemEventHandler):
 
 
 class LaptopEventHandler(FileSystemEventHandler):
-    def __init__(self, watched_folder):
-        super().__init__()
-        self.watched_folder = os.path.abspath(watched_folder)
-
     def on_created(self, event):
         if event.is_directory:
             return
 
-        event_type = "FILE_CREATED"
-        alert = "File created on laptop"
-        status = "AUTHORIZED"
-
-        for usb_drive in CONNECTED_USB_DRIVES:
-            # If USB is connected, newly created file on laptop may be received from USB
-            event_type = "FILE_RECEIVED_FROM_USB"
-            alert = "Possible file received from USB to laptop"
-            status = "UNAUTHORIZED"
-            break
-
-        add_log(
-            event_type=event_type,
-            source="-",
-            destination=event.src_path,
-            status=status,
-            alert=alert
-        )
+        if CONNECTED_USB_DRIVES:
+            add_log(
+                event_type="FILE_RECEIVED_FROM_USB",
+                source="-",
+                destination=event.src_path,
+                status="UNAUTHORIZED",
+                alert="Possible file received from USB to laptop"
+            )
+        else:
+            add_log(
+                event_type="FILE_CREATED",
+                source="-",
+                destination=event.src_path,
+                status="AUTHORIZED",
+                alert="File created on laptop"
+            )
 
     def on_modified(self, event):
         if event.is_directory:
@@ -263,7 +236,7 @@ class LaptopEventHandler(FileSystemEventHandler):
             source=event.src_path,
             destination="-",
             status="AUTHORIZED",
-            alert="File deleted from laptop"
+            alert="File deleted on laptop"
         )
 
     def on_moved(self, event):
@@ -279,54 +252,49 @@ class LaptopEventHandler(FileSystemEventHandler):
         )
 
 
-def start_usb_watcher(usb_drive):
-    if usb_drive in USB_WATCHERS:
+def start_usb_watcher(drive):
+    if drive in USB_WATCHERS:
         return
 
     try:
-        handler = USBEventHandler(usb_drive)
         observer = Observer()
-        observer.schedule(handler, usb_drive, recursive=True)
+        observer.schedule(USBEventHandler(), drive, recursive=True)
         observer.start()
-        USB_WATCHERS[usb_drive] = observer
+        USB_WATCHERS[drive] = observer
 
         add_log(
             event_type="USB_INSERTED",
             source="-",
-            destination=usb_drive,
+            destination=drive,
             status="CONNECTED",
             alert="USB drive inserted"
         )
 
-        print(f"[USB WATCHING STARTED] {usb_drive}")
+        print("Started watching USB:", drive)
     except Exception as e:
-        print(f"[USB WATCH ERROR] {usb_drive}: {e}")
+        print("Could not watch USB:", drive, e)
 
 
-def stop_usb_watcher(usb_drive):
-    observer = USB_WATCHERS.get(usb_drive)
+def stop_usb_watcher(drive):
+    observer = USB_WATCHERS.get(drive)
     if observer:
-        try:
-            observer.stop()
-            observer.join(timeout=3)
-        except Exception:
-            pass
-        del USB_WATCHERS[usb_drive]
+        observer.stop()
+        observer.join(timeout=3)
+        del USB_WATCHERS[drive]
 
     add_log(
         event_type="USB_REMOVED",
-        source=usb_drive,
+        source=drive,
         destination="-",
         status="DISCONNECTED",
         alert="USB drive removed"
     )
 
-    print(f"[USB WATCHING STOPPED] {usb_drive}")
+    print("Stopped watching USB:", drive)
 
 
 def monitor_usb_changes():
     global CONNECTED_USB_DRIVES
-
     previous_drives = set()
 
     while True:
@@ -340,12 +308,11 @@ def monitor_usb_changes():
             start_usb_watcher(drive)
 
         for drive in removed:
-            if drive in CONNECTED_USB_DRIVES:
-                CONNECTED_USB_DRIVES.remove(drive)
+            CONNECTED_USB_DRIVES.discard(drive)
             stop_usb_watcher(drive)
 
         previous_drives = current_drives
-        time.sleep(3)
+        time.sleep(2)
 
 
 def start_laptop_watchers():
@@ -353,30 +320,33 @@ def start_laptop_watchers():
 
     for folder in folders:
         try:
-            handler = LaptopEventHandler(folder)
             observer = Observer()
-            observer.schedule(handler, folder, recursive=True)
+            observer.schedule(LaptopEventHandler(), folder, recursive=True)
             observer.start()
             SYSTEM_WATCHERS.append(observer)
-            print(f"[LAPTOP WATCHING] {folder}")
+            print("Watching laptop folder:", folder)
         except Exception as e:
-            print(f"[WATCH ERROR] {folder}: {e}")
+            print("Could not watch folder:", folder, e)
+
+
+def add_test_log():
+    add_log(
+        event_type="SYSTEM_STARTED",
+        source="-",
+        destination="-",
+        status="AUTHORIZED",
+        alert="Monitoring system started successfully"
+    )
 
 
 def main():
     ensure_log_file()
 
-    print("Starting Secure File Monitoring System...")
-    print(f"Detected user: {get_current_user()}")
+    print("Starting Secure File Monitoring System")
+    print("Log file path:", LOG_FILE)
+    print("Current user:", get_current_user())
 
-    watched_folders = get_home_folders()
-    if watched_folders:
-        print("Watching laptop folders:")
-        for folder in watched_folders:
-            print(f" - {folder}")
-    else:
-        print("No standard folders found to watch.")
-
+    add_test_log()
     start_laptop_watchers()
 
     usb_thread = threading.Thread(target=monitor_usb_changes, daemon=True)
@@ -397,7 +367,7 @@ def main():
             observer.stop()
             observer.join()
 
-        print("Monitoring stopped.")
+        print("Stopped.")
 
 
 if __name__ == "__main__":
