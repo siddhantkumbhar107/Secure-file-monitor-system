@@ -24,8 +24,7 @@ def receive_log():
     data = request.get_json(force=True) or {}
     data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     logs.append(data)
-    print("📥 Received Log:", data)
-    return jsonify({"status": "success", "count": len(logs)}), 200
+    return jsonify({"status": "success"}), 200
 
 @app.route("/logs")
 def get_logs():
