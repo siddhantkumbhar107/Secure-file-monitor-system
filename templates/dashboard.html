@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Secure File Monitoring Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page">
+        <header class="hero">
+            <div>
+                <h1>🔐 Secure File Monitoring Dashboard</h1>
+                <p>Centralized monitoring for file activity, integrity, and suspicious transfers.</p>
+            </div>
+        </header>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-title">Total Logs</div>
+                <div class="stat-value">{{ total_logs }}</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-title">Unauthorized Events</div>
+                <div class="stat-value">{{ unauthorized_count }}</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-title">Sensitive Events</div>
+                <div class="stat-value">{{ sensitive_count }}</div>
+            </div>
+        </section>
+
+        <section class="logs-section">
+            <div class="section-header">
+                <h2>Recent Activity</h2>
+            </div>
+
+            {% if not logs %}
+                <div class="empty-state">
+                    <h3>No logs received yet</h3>
+                    <p>Once your client sends file activity events, they will appear here.</p>
+                </div>
+            {% else %}
+                <div class="log-list">
+                    {% for log in logs %}
+                        <div class="log-card">
+                            <div class="log-top">
+                                <div>
+                                    <span class="event-badge">{{ log.get('event', 'N/A') }}</span>
+                                    {% if log.get('status') == 'UNAUTHORIZED' %}
+                                        <span class="status-badge danger">UNAUTHORIZED</span>
+                                    {% else %}
+                                        <span class="status-badge success">{{ log.get('status', 'AUTHORIZED') }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="timestamp">{{ log.get('timestamp', '') }}</div>
+                            </div>
+
+                            <div class="log-grid">
+                                <div class="log-item">
+                                    <span class="label">File</span>
+                                    <span class="value break">{{ log.get('file', '') }}</span>
+                                </div>
+                                <div class="log-item">
+                                    <span class="label">User</span>
+                                    <span class="value">{{ log.get('user', '') }}</span>
+                                </div>
+                                <div class="log-item">
+                                    <span class="label">Hash</span>
+                                    <span class="value break">{{ log.get('hash', '') }}</span>
+                                </div>
+                                <div class="log-item">
+                                    <span class="label">Sensitive</span>
+                                    <span class="value">
+                                        {% if log.get('sensitive') %}
+                                            Yes
+                                        {% else %}
+                                            No
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
