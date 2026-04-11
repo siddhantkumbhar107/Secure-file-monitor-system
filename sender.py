@@ -1,6 +1,6 @@
 import requests
 
-SERVER_URL = "https://your-render-url.onrender.com/log"
+SERVER_URL = "https://secure-file-monitor-system.onrender.com/log"
 
 def send_log(data):
     try:
