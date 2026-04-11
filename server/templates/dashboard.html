@@ -1,129 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Secure File Monitoring Dashboard</title>
-    <meta http-equiv="refresh" content="10" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure File Monitoring Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="bg-glow glow-1"></div>
-    <div class="bg-glow glow-2"></div>
+  <div class="container">
+    <div class="hero">
+      <div>
+        <div class="badge">Cybersecurity Monitoring</div>
+        <h1>🔐 Secure File Monitoring Dashboard</h1>
+        <p>
+          Real-time centralized visibility for file activity, integrity checks,
+          unauthorized actions, and sensitive transfers.
+        </p>
+      </div>
 
-    <div class="page">
-        <header class="hero">
-            <div class="hero-left">
-                <div class="hero-badge">Cybersecurity Monitoring</div>
-                <h1>🔐 Secure File Monitoring Dashboard</h1>
-                <p>
-                    Real-time centralized visibility for file activity, integrity checks,
-                    unauthorized actions, and sensitive transfers.
-                </p>
-            </div>
-            <div class="hero-right">
-                <div class="mini-card">
-                    <span class="mini-label">System Status</span>
-                    <span class="mini-value online">Online</span>
-                </div>
-                <div class="mini-card">
-                    <span class="mini-label">Refresh</span>
-                    <span class="mini-value">Every 10s</span>
-                </div>
-            </div>
-        </header>
-
-        <section class="stats">
-            <div class="stat-card">
-                <div class="stat-icon">📄</div>
-                <div>
-                    <div class="stat-title">Total Logs</div>
-                    <div class="stat-value">{{ total_logs }}</div>
-                </div>
-            </div>
-
-            <div class="stat-card warning">
-                <div class="stat-icon">🚨</div>
-                <div>
-                    <div class="stat-title">Unauthorized Events</div>
-                    <div class="stat-value">{{ unauthorized_count }}</div>
-                </div>
-            </div>
-
-            <div class="stat-card info">
-                <div class="stat-icon">🔐</div>
-                <div>
-                    <div class="stat-title">Sensitive Events</div>
-                    <div class="stat-value">{{ sensitive_count }}</div>
-                </div>
-            </div>
-
-            <div class="stat-card accent">
-                <div class="stat-icon">✏️</div>
-                <div>
-                    <div class="stat-title">Modified Events</div>
-                    <div class="stat-value">{{ modified_count }}</div>
-                </div>
-            </div>
-        </section>
-
-        <section class="logs-section">
-            <div class="section-top">
-                <div>
-                    <h2>Recent Activity</h2>
-                    <p>Latest file monitoring events received from connected clients.</p>
-                </div>
-            </div>
-
-            {% if not logs %}
-                <div class="empty-state">
-                    <div class="empty-icon">📭</div>
-                    <h3>No logs received yet</h3>
-                    <p>Once your client sends file activity events, they will appear here.</p>
-                </div>
-            {% else %}
-                <div class="log-list">
-                    {% for log in logs %}
-                        <div class="log-card">
-                            <div class="log-top">
-                                <div class="log-badges">
-                                    <span class="event-badge">{{ log.get('event', 'N/A') }}</span>
-
-                                    {% if log.get('status', 'AUTHORIZED') == 'UNAUTHORIZED' %}
-                                        <span class="status-badge danger">UNAUTHORIZED</span>
-                                    {% else %}
-                                        <span class="status-badge success">{{ log.get('status', 'AUTHORIZED') }}</span>
-                                    {% endif %}
-
-                                    {% if log.get('sensitive', False) %}
-                                        <span class="status-badge sensitive">SENSITIVE</span>
-                                    {% endif %}
-                                </div>
-
-                                <div class="timestamp">{{ log.get('timestamp', '') }}</div>
-                            </div>
-
-                            <div class="log-grid">
-                                <div class="log-item wide">
-                                    <span class="label">File Path</span>
-                                    <span class="value break">{{ log.get('file', '') }}</span>
-                                </div>
-
-                                <div class="log-item">
-                                    <span class="label">User</span>
-                                    <span class="value">{{ log.get('user', '') }}</span>
-                                </div>
-
-                                <div class="log-item">
-                                    <span class="label">Hash</span>
-                                    <span class="value break">{{ log.get('hash', '') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </section>
+      <div class="status-boxes">
+        <div class="status-card">
+          <span>System Status</span>
+          <h2 class="online">Online</h2>
+        </div>
+        <div class="status-card">
+          <span>Refresh</span>
+          <h2>Every 10s</h2>
+        </div>
+      </div>
     </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="icon">📄</div>
+        <div>
+          <span>Total Logs</span>
+          <h2 id="totalLogs">0</h2>
+        </div>
+      </div>
+
+      <div class="card warning">
+        <div class="icon">🚨</div>
+        <div>
+          <span>Unauthorized Events</span>
+          <h2 id="unauthorizedEvents">0</h2>
+        </div>
+      </div>
+
+      <div class="card info">
+        <div class="icon">🔐</div>
+        <div>
+          <span>Sensitive Events</span>
+          <h2 id="sensitiveEvents">0</h2>
+        </div>
+      </div>
+
+      <div class="card purple">
+        <div class="icon">✏️</div>
+        <div>
+          <span>Modified Events</span>
+          <h2 id="modifiedEvents">0</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <h2>Recent Activity Logs</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Event</th>
+              <th>File Path</th>
+              <th>User</th>
+              <th>Status</th>
+              <th>Hash</th>
+              <th>Alert</th>
+            </tr>
+          </thead>
+          <tbody id="logTableBody">
+            <tr>
+              <td colspan="7" class="empty">No logs yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadStats() {
+      try {
+        const response = await fetch('/api/stats');
+        const stats = await response.json();
+
+        document.getElementById('totalLogs').innerText = stats.total_logs || 0;
+        document.getElementById('unauthorizedEvents').innerText = stats.unauthorized_events || 0;
+        document.getElementById('sensitiveEvents').innerText = stats.sensitive_events || 0;
+        document.getElementById('modifiedEvents').innerText = stats.modified_events || 0;
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    async function loadLogs() {
+      try {
+        const response = await fetch('/api/logs');
+        const logs = await response.json();
+
+        const tableBody = document.getElementById('logTableBody');
+        tableBody.innerHTML = '';
+
+        if (!logs || logs.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="7" class="empty">No logs yet</td></tr>';
+          return;
+        }
+
+        logs.forEach(log => {
+          const row = document.createElement('tr');
+
+          row.innerHTML = `
+            <td>${log.timestamp || '-'}</td>
+            <td>${log.event || '-'}</td>
+            <td>${log.file || '-'}</td>
+            <td>${log.user || '-'}</td>
+            <td>${log.status || '-'}</td>
+            <td>${log.hash || '-'}</td>
+            <td>${log.alert || '-'}</td>
+          `;
+
+          tableBody.appendChild(row);
+        });
+      } catch (error) {
+        console.error('Error loading logs:', error);
+      }
+    }
+
+    async function refreshDashboard() {
+      await loadStats();
+      await loadLogs();
+    }
+
+    refreshDashboard();
+    setInterval(refreshDashboard, 10000);
+  </script>
 </body>
 </html>
