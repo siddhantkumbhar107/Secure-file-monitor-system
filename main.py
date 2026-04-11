@@ -10,7 +10,7 @@ import time
 
 
 # 🔥 PROCESS FILE EVENTS
-def process_event(event_type, file_pathsend,log(data),send_log(data)):
+def process_event(event_type, file_pathsend):
 
     print("\n==============================")
     print(f"📂 Event: {event_type} -> {file_path}")
@@ -64,7 +64,7 @@ def process_event(event_type, file_pathsend,log(data),send_log(data)):
     }
 
     log_event(data)
-
+    send_log(data) 
 
 # 🔌 USB EVENT HANDLER
 def usb_event(event_type, drive):
