@@ -1,36 +1,50 @@
-from flask import Flask, request, jsonify, render_template
-from datetime import datetime
+from flask import Flask, jsonify, render_template
+import json
+import os
 
 app = Flask(__name__)
+LOG_FILE = "logs.json"
 
-logs = []
+
+def load_logs():
+    if not os.path.exists(LOG_FILE):
+        return []
+
+    try:
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data if isinstance(data, list) else []
+    except Exception:
+        return []
+
 
 @app.route("/")
-def home():
-    total_logs = len(logs)
-    unauthorized_count = sum(1 for log in logs if log.get("status", "") == "UNAUTHORIZED")
-    sensitive_count = sum(1 for log in logs if log.get("sensitive", False) is True)
-    modified_count = sum(1 for log in logs if log.get("event", "") == "MODIFIED")
+def dashboard():
+    return render_template("dashboard.html")
 
-    return render_template(
-        "dashboard.html",
-        logs=list(reversed(logs)),
-        total_logs=total_logs,
-        unauthorized_count=unauthorized_count,
-        sensitive_count=sensitive_count,
-        modified_count=modified_count
-    )
 
-@app.route("/log", methods=["POST"])
-def receive_log():
-    data = request.get_json(force=True) or {}
-    data["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    logs.append(data)
-    return jsonify({"status": "success", "count": len(logs)}), 200
-
-@app.route("/logs")
+@app.route("/api/logs")
 def get_logs():
-    return jsonify(logs)
+    return jsonify(load_logs())
+
+
+@app.route("/api/stats")
+def get_stats():
+    logs = load_logs()
+
+    stats = {
+        "total_logs": len(logs),
+        "usb_inserted": sum(1 for log in logs if log.get("event") == "USB_INSERTED"),
+        "usb_removed": sum(1 for log in logs if log.get("event") == "USB_REMOVED"),
+        "files_copied_to_usb": sum(1 for log in logs if log.get("event") == "FILE_COPIED_TO_USB"),
+        "files_received_from_usb": sum(1 for log in logs if log.get("event") == "FILE_RECEIVED_FROM_USB"),
+        "files_created": sum(1 for log in logs if log.get("event") == "FILE_CREATED"),
+        "files_deleted": sum(1 for log in logs if log.get("event") == "FILE_DELETED"),
+        "unauthorized_events": sum(1 for log in logs if log.get("status") == "UNAUTHORIZED")
+    }
+
+    return jsonify(stats)
+
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
