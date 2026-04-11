@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Secure File Monitoring Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page">
+        <header class="hero">
+            <h1>🔐 Secure File Monitoring Dashboard</h1>
+            <p>Centralized monitoring for file activity and suspicious transfers.</p>
+        </header>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-title">Total Logs</div>
+                <div class="stat-value">{{ total_logs }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Unauthorized Events</div>
+                <div class="stat-value">{{ unauthorized_count }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Sensitive Events</div>
+                <div class="stat-value">{{ sensitive_count }}</div>
+            </div>
+        </section>
+
+        <section class="logs-section">
+            <h2>Recent Activity</h2>
+
+            {% if not logs %}
+                <div class="empty-state">
+                    <p>No logs received yet.</p>
+                </div>
+            {% else %}
+                {% for log in logs %}
+                    <div class="log-card">
+                        <p><b>Event:</b> {{ log.get('event', 'N/A') }}</p>
+                        <p><b>File:</b> {{ log.get('file', '') }}</p>
+                        <p><b>User:</b> {{ log.get('user', '') }}</p>
+                        <p><b>Status:</b> {{ log.get('status', '') }}</p>
+                        <p><b>Hash:</b> {{ log.get('hash', '') }}</p>
+                        <p><b>Timestamp:</b> {{ log.get('timestamp', '') }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
