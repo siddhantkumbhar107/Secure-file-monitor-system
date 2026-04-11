@@ -1,6 +1,0 @@
-2026-04-11 14:02:01.295356 | {'event': 'MODIFIED', 'file': 'C:\\Users\\Ganesh\\Desktop\\desktop.ini', 'user': 'Ganesh', 'status': 'UNAUTHORIZED', 'hash': '4b9d687ac625690fd026ed4b236dad1cac90ef69e7ad256cc42766a065b50026'}
-2026-04-11 14:04:52.757815 | {'event': 'DELETED', 'file': 'C:\\Users\\Ganesh\\Desktop\\file.text', 'user': 'Ganesh', 'status': 'UNAUTHORIZED', 'hash': 'FILE_NOT_FOUND'}
-2026-04-11 14:04:52.770107 | {'event': 'DELETED', 'file': 'C:\\Users\\Ganesh\\Desktop\\file.text', 'user': 'Ganesh', 'status': 'UNAUTHORIZED', 'hash': 'FILE_NOT_FOUND'}
-2026-04-11 14:20:34.920466 | {'event': 'DELETED', 'file': 'C:\\Users\\Ganesh\\Desktop\\New folder', 'user': 'Ganesh', 'status': 'UNAUTHORIZED', 'hash': 'FILE_NOT_FOUND'}
-2026-04-11 14:20:34.924219 | {'event': 'DELETED', 'file': 'C:\\Users\\Ganesh\\Desktop\\New folder', 'user': 'Ganesh', 'status': 'UNAUTHORIZED', 'hash': 'FILE_NOT_FOUND'}
-2026-04-11 14:20:34.928289 | {'event': 'DELETED', 'file': 'C:\\Users\\Ganesh\\Desktop\\New folder', 'user': 'Ganesh', 'status': 'UNAUTHORIZED', 'hash': 'FILE_NOT_FOUND'}
