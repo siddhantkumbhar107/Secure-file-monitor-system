@@ -9,19 +9,7 @@ LOG_FILE = os.path.join(BASE_DIR, "logs.json")
 
 
 def load_logs():
-    if not os.path.exists(LOG_FILE):
-        return []
-
-    try:
-        with open(LOG_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if isinstance(data, list) and len(data) > 0:
-                return data
-    except:
-        pass
-
-    # Fallback demo data for deployment
-    return [
+    demo_logs = [
         {
             "timestamp": "2026-04-13 12:00:00",
             "event": "SYSTEM_STARTED",
@@ -40,7 +28,7 @@ def load_logs():
             "source": "-",
             "destination": "sample.txt",
             "file_name": "sample.txt",
-            "user": "user",
+            "user": "system",
             "status": "AUTHORIZED",
             "file_size": 120,
             "hash": "abc123",
@@ -52,13 +40,38 @@ def load_logs():
             "source": "-",
             "destination": "E:\\",
             "file_name": "USB Drive",
-            "user": "user",
+            "user": "system",
             "status": "CONNECTED",
             "file_size": 0,
             "hash": "-",
             "alert": "USB inserted"
+        },
+        {
+            "timestamp": "2026-04-13 12:03:00",
+            "event": "FILE_COPIED_TO_USB",
+            "source": "project.docx",
+            "destination": "E:\\project.docx",
+            "file_name": "project.docx",
+            "user": "system",
+            "status": "UNAUTHORIZED",
+            "file_size": 2048,
+            "hash": "d3m0h45h123",
+            "alert": "File copied to USB drive"
         }
     ]
+
+    if not os.path.exists(LOG_FILE):
+        return demo_logs
+
+    try:
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, list) and len(data) > 0:
+                return data
+    except Exception:
+        pass
+
+    return demo_logs
 def badge_class(status):
     status = str(status).upper()
     if status == "AUTHORIZED":
