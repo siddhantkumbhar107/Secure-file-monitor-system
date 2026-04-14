@@ -214,7 +214,7 @@ def dashboard():
                 position: fixed;
                 bottom: 80px;
                 right: 20px;
-                width: 320px;
+                width: 340px;
                 background: #0f1f3d;
                 color: white;
                 padding: 16px;
@@ -322,14 +322,15 @@ def dashboard():
             </div>
         </div>
 
-        <button class="How to use-button" onclick="toggleHow to use()">❓ How to use</button>
+        <button class="help-button" onclick="toggleHelp()">❓ Help</button>
 
-        <div id="how to useBox" class="how to use-box">
+        <div id="helpBox" class="help-box">
             <h3>📘 How to Use</h3>
             <ul>
                 <li>Run <b>monitor.py</b> in one terminal</li>
                 <li>Run <b>app.py</b> in another terminal</li>
-                <li>Open <b>http://127.0.0.1:5000/</b></li>
+                <li>Local: <b>http://127.0.0.1:5000/</b></li>
+                <li>Online: <b>https://secure-file-monitor-system.onrender.com/</b></li>
                 <li>Create, modify, or delete any file</li>
                 <li>Insert a USB device to track activity</li>
                 <li>Dashboard updates automatically every 5 seconds</li>
