@@ -9,69 +9,28 @@ LOG_FILE = os.path.join(BASE_DIR, "logs.json")
 
 
 def load_logs():
-    demo_logs = [
-        {
-            "timestamp": "2026-04-13 12:00:00",
-            "event": "SYSTEM_STARTED",
-            "source": "-",
-            "destination": "-",
-            "file_name": "-",
-            "user": "system",
-            "status": "AUTHORIZED",
-            "file_size": 0,
-            "hash": "-",
-            "alert": "Monitoring system started"
-        },
-        {
-            "timestamp": "2026-04-13 12:01:00",
-            "event": "FILE_CREATED",
-            "source": "-",
-            "destination": "sample.txt",
-            "file_name": "sample.txt",
-            "user": "system",
-            "status": "AUTHORIZED",
-            "file_size": 120,
-            "hash": "abc123",
-            "alert": "File created"
-        },
-        {
-            "timestamp": "2026-04-13 12:02:00",
-            "event": "USB_INSERTED",
-            "source": "-",
-            "destination": "E:\\",
-            "file_name": "USB Drive",
-            "user": "system",
-            "status": "CONNECTED",
-            "file_size": 0,
-            "hash": "-",
-            "alert": "USB inserted"
-        },
-        {
-            "timestamp": "2026-04-13 12:03:00",
-            "event": "FILE_COPIED_TO_USB",
-            "source": "project.docx",
-            "destination": "E:\\project.docx",
-            "file_name": "project.docx",
-            "user": "system",
-            "status": "UNAUTHORIZED",
-            "file_size": 2048,
-            "hash": "d3m0h45h123",
-            "alert": "File copied to USB drive"
-        }
-    ]
-
     if not os.path.exists(LOG_FILE):
-        return demo_logs
+        return []
 
     try:
         with open(LOG_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if isinstance(data, list) and len(data) > 0:
-                return data
-    except Exception:
-        pass
+            return data if isinstance(data, list) else []
+    except Exception as e:
+        return [{
+            "timestamp": "-",
+            "event": "READ_ERROR",
+            "source": "-",
+            "destination": "-",
+            "file_name": "-",
+            "user": "-",
+            "status": "ERROR",
+            "file_size": 0,
+            "hash": "-",
+            "alert": str(e)
+        }]
 
-    return demo_logs
+
 def badge_class(status):
     status = str(status).upper()
     if status == "AUTHORIZED":
@@ -177,14 +136,14 @@ def dashboard():
             }}
 
             .title {{
-                font-size: 64px;
+                font-size: 58px;
                 line-height: 1.05;
                 margin: 0 0 16px 0;
             }}
 
             .subtitle {{
                 color: #a8bbdc;
-                font-size: 21px;
+                font-size: 19px;
                 line-height: 1.6;
                 max-width: 980px;
                 margin: 0;
@@ -246,29 +205,12 @@ def dashboard():
                 font-weight: 700;
             }}
 
-            .card.blue {{
-                border-color: rgba(59, 130, 246, 0.35);
-            }}
-
-            .card.red {{
-                border-color: rgba(239, 68, 68, 0.35);
-            }}
-
-            .card.green {{
-                border-color: rgba(34, 197, 94, 0.35);
-            }}
-
-            .card.yellow {{
-                border-color: rgba(245, 158, 11, 0.35);
-            }}
-
-            .card.cyan {{
-                border-color: rgba(6, 182, 212, 0.35);
-            }}
-
-            .card.purple {{
-                border-color: rgba(168, 85, 247, 0.35);
-            }}
+            .card.blue {{ border-color: rgba(59, 130, 246, 0.35); }}
+            .card.red {{ border-color: rgba(239, 68, 68, 0.35); }}
+            .card.green {{ border-color: rgba(34, 197, 94, 0.35); }}
+            .card.yellow {{ border-color: rgba(245, 158, 11, 0.35); }}
+            .card.cyan {{ border-color: rgba(6, 182, 212, 0.35); }}
+            .card.purple {{ border-color: rgba(168, 85, 247, 0.35); }}
 
             .table-box {{
                 background: rgba(8, 17, 36, 0.96);
@@ -291,7 +233,6 @@ def dashboard():
                 width: 100%;
                 border-collapse: collapse;
                 min-width: 1400px;
-                overflow: hidden;
             }}
 
             thead {{
@@ -396,11 +337,7 @@ def dashboard():
                 }}
 
                 .title {{
-                    font-size: 42px;
-                }}
-
-                .subtitle {{
-                    font-size: 18px;
+                    font-size: 40px;
                 }}
             }}
 
