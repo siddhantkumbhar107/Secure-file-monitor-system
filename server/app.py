@@ -8,7 +8,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_FILE = os.path.join(BASE_DIR, "logs.json")
 
 
-# LOAD LOGS (WITH DEMO FALLBACK FOR RENDER)
 def load_logs():
     demo_logs = [
         {
@@ -41,20 +40,16 @@ def load_logs():
         }
     ]
 
-    if not os.path.exists(LOG_FILE):
-        return demo_logs
-
     try:
-        with open(LOG_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            if isinstance(data, list) and len(data) > 0:
-                return data
-    except:
+        if os.path.exists(LOG_FILE):
+            with open(LOG_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list) and len(data) > 0:
+                    return data
+    except Exception:
         pass
 
     return demo_logs
-
-
 # STATUS BADGE
 def badge_class(status):
     status = str(status).upper()
