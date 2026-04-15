@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Free Render: keep logs in memory
+# In-memory logs for free Render
 logs = []
 
 
@@ -16,6 +16,22 @@ def receive_logs():
     except Exception as e:
         print("ERROR RECEIVING LOG:", e)
         return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/clear_logs", methods=["POST"])
+def clear_logs():
+    global logs
+    logs.clear()
+    return """
+    <html>
+        <head>
+            <meta http-equiv="refresh" content="0; url=/" />
+        </head>
+        <body>
+            Logs Cleared
+        </body>
+    </html>
+    """
 
 
 def badge_class(status):
@@ -34,11 +50,20 @@ def badge_class(status):
 @app.route("/")
 def dashboard():
     total_logs = len(logs)
-    files_created = sum(1 for log in logs if log.get("event") in ["FILE_CREATED", "FOLDER_CREATED"])
-    files_deleted = sum(1 for log in logs if log.get("event") in ["FILE_DELETED", "FOLDER_DELETED"])
+    files_created = sum(
+        1 for log in logs
+        if log.get("event") in ["FILE_CREATED", "FOLDER_CREATED"]
+    )
+    files_deleted = sum(
+        1 for log in logs
+        if log.get("event") in ["FILE_DELETED", "FOLDER_DELETED"]
+    )
     files_modified = sum(1 for log in logs if log.get("event") == "FILE_MODIFIED")
     usb_inserted = sum(1 for log in logs if log.get("event") == "USB_INSERTED")
-    unauthorized = sum(1 for log in logs if str(log.get("status")).upper() == "UNAUTHORIZED")
+    unauthorized = sum(
+        1 for log in logs
+        if str(log.get("status")).upper() == "UNAUTHORIZED"
+    )
 
     rows = ""
     for log in reversed(logs):
@@ -128,6 +153,27 @@ def dashboard():
         .card .value {{
             font-size: 34px;
             font-weight: 700;
+        }}
+
+        .actions {{
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }}
+
+        .clear-btn {{
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+        }}
+
+        .clear-btn:hover {{
+            background: #b91c1c;
         }}
 
         .table-box {{
@@ -244,6 +290,10 @@ def dashboard():
             .cards {{
                 grid-template-columns: repeat(2, 1fr);
             }}
+
+            .actions {{
+                justify-content: center;
+            }}
         }}
 
         @media (max-width: 500px) {{
@@ -273,6 +323,12 @@ def dashboard():
             <div class="card"><div class="label">Unauthorized</div><div class="value">{unauthorized}</div></div>
         </div>
 
+        <div class="actions">
+            <form method="POST" action="/clear_logs" onsubmit="return confirm('Are you sure you want to delete all logs?');">
+                <button type="submit" class="clear-btn">🗑 Clear Logs</button>
+            </form>
+        </div>
+
         <div class="table-box">
             <div class="table-title">Recent Activity Logs</div>
             <div class="table-wrap">
@@ -299,6 +355,7 @@ def dashboard():
             <li>Logs are sent to the Render dashboard</li>
             <li>Open <b>https://secure-file-monitor-system.onrender.com/</b></li>
             <li>Create, modify, or delete files</li>
+            <li>Use <b>Clear Logs</b> to remove all logs</li>
             <li>Refresh happens automatically every 5 seconds</li>
         </ul>
     </div>
