@@ -57,7 +57,7 @@ def dashboard():
         rows = "<tr><td colspan='5'>No logs found</td></tr>"
 
     return f"""
-    <!DOCTYPE html>
+ <!DOCTYPE html>
     <html>
     <head>
         <meta charset="UTF-8">
@@ -150,6 +150,10 @@ def dashboard():
     </body>
     </html>
     """
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 if __name__ == "__main__":
