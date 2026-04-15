@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify
-import os
 
 app = Flask(__name__)
 
-# In-memory logs for free Render
+# Free Render: keep logs in memory
 logs = []
 
 
@@ -57,7 +56,6 @@ def dashboard():
         rows = "<tr><td colspan='5'>No logs found</td></tr>"
 
     return f"""
-return f"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -318,5 +316,7 @@ return f"""
 </body>
 </html>
 """
+
+
 if __name__ == "__main__":
     app.run(debug=True)
