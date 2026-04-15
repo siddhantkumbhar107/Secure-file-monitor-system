@@ -34,8 +34,8 @@ def badge_class(status):
 @app.route("/")
 def dashboard():
     total_logs = len(logs)
-    files_created = sum(1 for log in logs if log.get("event") == "FILE_CREATED")
-    files_deleted = sum(1 for log in logs if log.get("event") == "FILE_DELETED")
+    files_created = sum(1 for log in logs if log.get("event") in ["FILE_CREATED", "FOLDER_CREATED"])
+    files_deleted = sum(1 for log in logs if log.get("event") in ["FILE_DELETED", "FOLDER_DELETED"])
     files_modified = sum(1 for log in logs if log.get("event") == "FILE_MODIFIED")
     usb_inserted = sum(1 for log in logs if log.get("event") == "USB_INSERTED")
     unauthorized = sum(1 for log in logs if str(log.get("status")).upper() == "UNAUTHORIZED")
